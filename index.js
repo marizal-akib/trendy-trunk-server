@@ -33,15 +33,15 @@ async function run() {
     const brandCollection =client.db('brandDB').collection('products');
     
     app.get('/products', async(req,res)=>{
-      const cursor = newProduct.find();
+      const cursor = brandCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
     app.post('/products', async(req,res)=>{
       const newProduct = req.body;
-      console.log(newProduct);
-      const result = await brandCollection.insertOne(newProduct);
+      console.log(newProduct);brandCollection
+      const result = await insertOne(newProduct);
       res.send(result);
     })
 
