@@ -31,6 +31,7 @@ async function run() {
     // await client.connect();
 
     const brandCollection = client.db('brandDB').collection('products');
+    const userCollection = client.db("brandDB").collection('user')
 
     app.get('/products', async (req, res) => {
       const cursor = brandCollection.find();
@@ -74,6 +75,14 @@ async function run() {
       const result = await brandCollection.insertOne(newProduct);
       res.send(result);
     })
+
+    // user api
+    app.post('/user', async(req,res)=>{
+      const user = req.body;
+      console.log(user);
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    } );
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
