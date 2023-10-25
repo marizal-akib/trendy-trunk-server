@@ -77,12 +77,26 @@ async function run() {
     })
 
     // user api
+
     app.post('/user', async(req,res)=>{
       const user = req.body;
       console.log(user);
       const result = await userCollection.insertOne(user);
       res.send(result);
     } );
+
+    app.patch('/user' ,async(req,res) =>{
+      const user = req.body;
+      const filter = {email: user.email }
+      const updateDoc = {
+        $push:{
+          cartProduct : user.cartProduct
+        }
+
+      }
+      const result = await userCollection.updateOne(filter,updateDoc)
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
