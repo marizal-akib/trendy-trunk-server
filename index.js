@@ -13,7 +13,7 @@ app.use(express.json());
 const user = process.env.DB_USER;
 const pass = process.env.DB_PASS;
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${user}:${pass}@cluster0.ak4rw.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,18 +30,48 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const brandCollection =client.db('brandDB').collection('products');
-    
-    app.get('/products', async(req,res)=>{
+    const brandCollection = client.db('brandDB').collection('products');
+
+    app.get('/products', async (req, res) => {
       const cursor = brandCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.post('/products', async(req,res)=>{
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await brandCollection.findOne(query)
+      res.send(result);
+    })
+
+    app.put('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updateProduct = req.body;
+      const product = {
+        $set: {
+          image: updateProduct.image,
+          description: updateProduct.description,
+          name: updateProduct.name,
+          brand_Name: updateProduct.brand_Name,
+          type: updateProduct.type,
+          price: updateProduct.price,
+          rating: updateProduct.rating
+
+        }
+      }
+
+      const result = await brandCollection.updateOne(filter, product, options);
+      res.send(result);
+
+    })
+
+    app.post('/products', async (req, res) => {
       const newProduct = req.body;
-      console.log(newProduct);brandCollection
-      const result = await insertOne(newProduct);
+      console.log(newProduct);
+      const result = await brandCollection.insertOne(newProduct);
       res.send(result);
     })
 
@@ -56,11 +86,11 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send("TT Shop is running");
+app.get('/', (req, res) => {
+  res.send("TT Shop is running");
 
 })
 
-app.listen( port, () => {
-    console.log(`TT server is on port ${port}`)
+app.listen(port, () => {
+  console.log(`TT server is on port ${port}`)
 })
