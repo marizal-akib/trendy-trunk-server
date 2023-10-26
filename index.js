@@ -69,6 +69,8 @@ async function run() {
 
     })
 
+    
+
     app.post('/products', async (req, res) => {
       const newProduct = req.body;
       console.log(newProduct);
@@ -77,31 +79,72 @@ async function run() {
     })
 
     // user api
-    app.get('/user', async(req,res)=>{
+    app.get('/user', async (req, res) => {
       const cursor = userCollection.find();
       const user = await cursor.toArray();
       res.send(user)
     })
-
-    app.post('/user', async(req,res)=>{
+    userCollection.createIndex({ email: 1 }, { unique: true });
+    app.post('/user', async (req, res) => {
       const user = req.body;
       console.log(user);
-      const result = await userCollection.insertOne(user);
-      res.send(result);
-    } );
+      try {
+        const result = await userCollection.insertOne(user);
+        res.send(result);
+      } catch (error) {
+        if (error.code === 11000) {
+          res.status(400).send('Duplicate entry found. Please provide a unique value.');
+        } else {
+          res.status(500).send('Internal server error');
+        }
+      }
+    });
 
-    app.patch('/user' ,async(req,res) =>{
+    
+ 
+
+    app.patch('/user', async (req, res) => {
       const user = req.body;
-      const filter = {email: user.email }
+      const filter = { email: user.email }
       const updateDoc = {
-        $push:{
-          cartProduct : user.cartProduct
+        $push: {
+          cartProduct: user.cartProduct
         }
 
       }
-      const result = await userCollection.updateOne(filter,updateDoc)
+      const result = await userCollection.updateOne(filter, updateDoc)
       res.send(result);
     })
+    // app.patch('/user' ,async(req,res) =>{
+    //   const user = req.body;
+    //   const filter = {email: user.email }
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $pull:{
+    //       cartProduct : { $in:[user.id]}
+    //     }
+
+    //   }
+    //   const result = await userCollection.updateOne(filter,updateDoc)
+    //   res.send(result);
+    // })
+    app.put('/user', async (req, res) => {
+      const user = req.body;
+      console.log(user.email);
+      const filter = { email: user.email }
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          password: user.password,
+          
+        }
+
+      }
+      const result = await userCollection.updateOne(filter, updateDoc,options)
+      res.send(result);
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
