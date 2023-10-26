@@ -115,19 +115,27 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc)
       res.send(result);
     })
-    // app.patch('/user' ,async(req,res) =>{
-    //   const user = req.body;
-    //   const filter = {email: user.email }
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $pull:{
-    //       cartProduct : { $in:[user.id]}
-    //     }
+    // app.delete('/user/:id',async(req,res) =>{
+    //   const id = req.body.id;
+      
+    //   const query = { cartProduct._id : {$elemMatch : id}  }
 
-    //   }
-    //   const result = await userCollection.updateOne(filter,updateDoc)
+      
+    //   const result = await userCollection.deleteOne(query)
     //   res.send(result);
     // })
+
+
+    app.delete('/user/:id', async (req, res) => {
+      const id = req.params.id;
+      const user = req.body;
+      // const filter = ;
+      const result = await brandCollection.deleteOne({cartProduct:{$elemMatch: {$ne : user.item }}} );
+      res.send(result);
+
+    })
+
+
     app.put('/user', async (req, res) => {
       const user = req.body;
       console.log(user.email);
