@@ -103,6 +103,24 @@ async function run() {
     
  
 
+    app.put('/user', async (req, res) => {
+      const user = req.body;
+      console.log(user.email);
+      const filter = { email: user.email }
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          password: user.password,
+          
+        }
+
+      }
+      const result = await userCollection.updateOne(filter, updateDoc,options)
+      res.send(result);
+    })
+
+    // cart
+
     app.patch('/user', async (req, res) => {
       const user = req.body;
       const filter = { email: user.email }
@@ -132,6 +150,26 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc,options)
       res.send(result);
     })
+
+
+    app.put('/user/cart', async (req, res) => {
+      const cart = req.body;
+      console.log(cart.email);
+      const filter = { email: cart.email }
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          cartProduct: cart.itemToBuy
+          
+        }
+
+      }
+      const result = await userCollection.updateOne(filter, updateDoc,options)
+      res.send(result);
+    })
+
+
+
 
 
 
